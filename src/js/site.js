@@ -355,6 +355,8 @@
     try { wake = await navigator.wakeLock?.request("screen"); if (wake) $(".wake-text", wakeNote).textContent = "· Экран не погаснет, пока открыт режим готовки."; }
     catch { $(".wake-text", wakeNote).textContent = ""; }
   };
+  // Таймеры не должны закрывать конец шага: оставляем под ними место
+  new ResizeObserver(() => cook.style.setProperty("--dock", dock.offsetHeight ? `${dock.offsetHeight + 12}px` : "0px")).observe(dock);
   const open = () => {
     syncCookPantry();
     cook.showModal();

@@ -426,7 +426,6 @@ canvas.stars { position: absolute; inset: 0; width: 100%; height: 100%; z-index:
   .steps > li, .steps > li.has-photo { grid-template-columns: minmax(0, 1fr); gap: .55rem; }
   .steps > li::before { font-size: 2.1rem; }
   .steps > li.has-photo .step-photo { max-width: 420px; }
-  .tip { grid-template-columns: minmax(0, 1fr); }
 }
 .seek { display: inline-flex; align-items: center; gap: .45rem; margin-top: .75rem; padding: .4rem .85rem .4rem .5rem; border: 0; border-radius: var(--r-pill); cursor: pointer;
   background: var(--enamel-hi); color: var(--ink); font-weight: 600; font-size: .9rem; box-shadow: inset 0 0 0 1.5px var(--enamel-line); transition: box-shadow .2s, background-color .2s; }
@@ -445,6 +444,7 @@ canvas.stars { position: absolute; inset: 0; width: 100%; height: 100%; z-index:
 .tip h3 { font-size: 1.35rem; margin-bottom: .35rem; }
 .tip p { color: var(--ink-soft); }
 .tip ul { margin: .4rem 0 0; padding-left: 1.1rem; color: var(--ink-soft); }
+@media (max-width: 700px) { .tip { grid-template-columns: minmax(0, 1fr); } }
 .tip li + li { margin-top: .35rem; }
 
 .recipe-video { padding-block: clamp(4rem, 8vw, 6.5rem); }
@@ -473,7 +473,7 @@ canvas.stars { position: absolute; inset: 0; width: 100%; height: 100%; z-index:
 .cook-progress i { flex: 1; height: 6px; border-radius: 99px; background: rgba(255,255,255,.18); transition: background-color .35s var(--ease-out); }
 .cook-progress i.done { background: var(--gold); }
 .cook-progress i.now { background: #fff; }
-.cook-stage { position: relative; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; display: grid; align-items: safe center; padding: clamp(1.5rem, 4vw, 3rem) var(--gutter); }
+.cook-stage { position: relative; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; display: grid; align-items: safe center; padding: clamp(1.5rem, 4vw, 3rem) var(--gutter) calc(clamp(1.5rem, 4vw, 3rem) + var(--dock, 0px)); }
 .cook-step { max-width: 980px; margin-inline: auto; width: 100%; }
 .cook-step.with-photo { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 3.5rem); align-items: center; max-width: 1180px; }
 .cook-step .cook-photo { border-radius: 22px; padding: 8px; background: var(--enamel-hi); box-shadow: 0 0 0 2px var(--ink), var(--lift); }
