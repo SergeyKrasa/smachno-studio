@@ -1,0 +1,114 @@
+[
+  {
+    "id": "a-nOhzhKJos",
+    "title": "Шпинатный рулет с маскарпоне и сельдью",
+    "recipe": "shpinatnyj-rulet-maskarpone-seld",
+    "duration": 163,
+    "uploadDate": "2026-04-15"
+  },
+  {
+    "id": "BuwSkoGspg4",
+    "title": "Нежная творожная запеканка — вкус детства",
+    "recipe": "tvorozhnaya-zapekanka-vkus-detstva",
+    "duration": 135,
+    "uploadDate": "2026-04-11"
+  },
+  {
+    "id": "3LLGzRJq0Lk",
+    "title": "Куриный террин с оливками",
+    "recipe": "kurinyi-terrin-olivki",
+    "duration": 224,
+    "uploadDate": "2026-04-02"
+  },
+  {
+    "id": "KBqdZoTNIuc",
+    "title": "Фаршированный карп без костей",
+    "recipe": "farshirovannyj-karp",
+    "duration": 628,
+    "uploadDate": "2026-03-28"
+  },
+  {
+    "id": "sixAoiBynj4",
+    "title": "Забытый рецепт сельди: закуска за 5 минут",
+    "recipe": "zakuska-iz-seledki",
+    "duration": 89,
+    "uploadDate": "2026-03-13"
+  },
+  {
+    "id": "wXV4QEUaWRg",
+    "title": "Салат с фенхелем и апельсином",
+    "recipe": "salat-fenhel-apelsin",
+    "duration": 154,
+    "uploadDate": "2026-02-14"
+  },
+  {
+    "id": "hZq_IBHI2zY",
+    "title": "Салат с грушей, виноградом и фетой",
+    "recipe": "salat-grusha-vinograd-feta",
+    "duration": 300,
+    "uploadDate": "2026-01-31"
+  },
+  {
+    "id": "iNI8hmw4IKA",
+    "title": "Сочная говядина с «секретным» фруктом",
+    "recipe": "govyadina-s-ajvoj",
+    "duration": 376,
+    "uploadDate": "2026-01-24"
+  },
+  {
+    "id": "QmonlLscQCk",
+    "title": "Королевские блинчики с красной рыбой",
+    "recipe": "blinchiki-s-krasnoy-ryboy",
+    "duration": 344,
+    "uploadDate": "2025-12-27"
+  },
+  {
+    "id": "RZGMujL8oa4",
+    "title": "Идеальный яблочный крамбл — хрустящий и ароматный десерт",
+    "recipe": null,
+    "duration": 312,
+    "uploadDate": "2025-03-05"
+  },
+  {
+    "id": "nxsA90jNImE",
+    "title": "Запечённый лосось с брюссельской капустой и сливками",
+    "recipe": null,
+    "duration": 262,
+    "uploadDate": "2025-02-14"
+  },
+  {
+    "id": "HbvllwEXSWI",
+    "title": "Мясной рулет с черносливом — изысканный вкус в каждом кусочке",
+    "recipe": null,
+    "duration": 387,
+    "uploadDate": "2025-01-31"
+  },
+  {
+    "id": "sDfFiMCKqko",
+    "title": "Безе — десерт, после которого мир кажется добрее",
+    "recipe": null,
+    "duration": 218,
+    "uploadDate": "2025-01-23"
+  },
+  {
+    "id": "V_SPCR47wcs",
+    "title": "«Тёщин язык», или рулетики из баклажанов",
+    "recipe": null,
+    "duration": 221,
+    "uploadDate": "2023-09-14"
+  },
+  {
+    "id": "0-E_n1S3Iu4",
+    "title": "Секрет салата из красной свёклы: цветная капуста вместо орехов",
+    "recipe": null,
+    "duration": 178,
+    "uploadDate": "2022-11-20"
+  },
+  {
+    "id": "7qImJI7HS_0",
+    "title": "Брюссельская капуста, обжаренная в сметанном соусе",
+    "recipe": null,
+    "duration": 205,
+    "uploadDate": "2022-10-22"
+  }
+]
