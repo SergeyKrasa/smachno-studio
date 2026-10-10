@@ -181,7 +181,7 @@ function footer(rel) {
   <div class="wrap">
     <div class="footer-top">
       <div>
-        <p class="footer-motto">Готовим просто,<br><em>едим с удовольствием!</em></p>
+        <p class="footer-motto">Готовим просто,<br><em>едим с&nbsp;удовольствием!</em></p>
         <div class="actions">
           <a class="btn btn-tomato" href="${esc(site.youtube)}" target="_blank" rel="noopener"><span class="play-dot">${i("play")}</span>Смотреть канал</a>
           <a class="btn btn-ghost" href="mailto:${esc(site.email)}">${i("mail")}${esc(site.email)}</a>
@@ -244,7 +244,7 @@ function heroParts(rel, day) {
     title: lines.map((l, k) => `<span class="line"><span>${k === lines.length - 1 && day.heroAccent ? esc(l).replace(esc(day.heroAccent), `<em>${esc(day.heroAccent)}</em>`) : esc(l)}</span></span>`).join(" "),
     lead: nbsp(day.description),
     meta: `${day.time ? `<span>${i("clock")}${esc(day.time)}</span>` : ""}<span>${i("tag")}${esc(catName(day.category))}</span>${day.servings ? `<span>${i("bowl")}${day.servings} ${plural(day.servings, "порция", "порции", "порций")}</span>` : ""}`,
-    actions: `<a class="btn" href="${rel}recepty/${day.slug}/">${i("cook")}Готовить по шагам</a>${day.video ? `<a class="btn btn-tomato" href="${rel}recepty/${day.slug}/#video"><span class="play-dot">${i("play")}</span>Смотреть видео</a>` : ""}`,
+    actions: `<a class="btn" href="${rel}recepty/${day.slug}/">${i("cook")}Открыть рецепт</a>${day.video ? `<a class="btn btn-tomato" href="${rel}recepty/${day.slug}/#video"><span class="play-dot">${i("play")}</span>Смотреть видео</a>` : ""}`,
     plate: pic(rel, day.image, day.imageAlt || day.title, { cls: "photo", eager: true, sizes: "(max-width: 900px) 100vw, 640px" }),
   };
 }
@@ -291,7 +291,7 @@ ${rotation}
       <p>${nbsp(site.bookIntro)}</p>
     </div>
     ${chips(recipes)}
-    <div class="book" data-filterable data-limit="9">
+    <div class="book" data-filterable data-limit="9" data-limit-phone="4">
       ${ordered.map((r, k) => dish(rel, r, { feature: k === 0 })).join("")}
       <div class="book-empty" hidden><strong>Здесь пока пусто</strong>Скоро в этом разделе появятся новые рецепты.</div>
     </div>
@@ -299,7 +299,7 @@ ${rotation}
   </section>
 
   <section class="wrap promise" aria-label="Как мы готовим">
-    <p class="promise-text">Каждое блюдо — <mark>с&nbsp;фото, видео</mark> и&nbsp;пошаговой инструкцией. Ингредиенты — <mark>из&nbsp;обычного магазина</mark>. А&nbsp;результат — как в&nbsp;ресторане.</p>
+    <p class="promise-text">Каждое блюдо&nbsp;— <mark>с&nbsp;фото, видео</mark> и&nbsp;пошаговой инструкцией. Ингредиенты&nbsp;— <mark>из&nbsp;обычного магазина</mark>. А&nbsp;результат&nbsp;— как в&nbsp;ресторане.</p>
     <div class="promise-foot"><span class="meta"><span>${i("calendar")}Новые рецепты выходят регулярно</span></span><a class="btn btn-small" href="o-studii/">О студии${i("arrow")}</a></div>
   </section>
 </div>
@@ -349,7 +349,7 @@ ${voices?.length ? `<section class="cobalt rimmed-top section" aria-labelledby="
     <div class="voices">
       ${voices.map((v) => `<figure class="voice">${i("quote", "quote-mark")}<blockquote>${nbsp(v.text)}</blockquote><figcaption><span class="initial" aria-hidden="true">${esc(v.name[0])}</span>${esc(v.name)}</figcaption></figure>`).join("")}
     </div>
-    <p class="voices-cta soft">Готовили по&nbsp;нашим рецептам? <a href="${esc(site.youtube)}" target="_blank" rel="noopener">Расскажите в&nbsp;комментариях на&nbsp;YouTube</a> — мы читаем каждый.</p>
+    <p class="voices-cta soft">Готовили по&nbsp;нашим рецептам? <a href="${esc(site.youtube)}" target="_blank" rel="noopener">Расскажите в&nbsp;комментариях на&nbsp;YouTube</a>&nbsp;— мы читаем каждый.</p>
   </div>
 </section>` : ""}
 </main>
@@ -447,7 +447,7 @@ function recipePage(r) {
     <div class="recipe-layout">
       ${pantry}
       <section class="method" aria-labelledby="method-title">
-        <div class="method-head"><h2 id="method-title">Приготовление</h2><button class="btn btn-cobalt" type="button" data-open-cook>${i("cook")}Готовить по шагам</button></div>
+        <div class="method-head"><h2 id="method-title">Приготовление</h2><button class="btn btn-cobalt" type="button" data-open-cook>${i("cook")}Режим готовки</button></div>
         <ol class="steps">${steps}</ol>
         ${r.tips?.length ? `<div class="tip"><span class="badge">${i("spark")}</span><div><h3>Совет студии</h3>${r.tips.length === 1 ? `<p>${inline(r.tips[0], rel)}</p>` : `<ul>${r.tips.map((t) => `<li>${inline(t, rel)}</li>`).join("")}</ul>`}</div></div>` : ""}
       </section>
@@ -482,7 +482,7 @@ ${footer(rel)}
       <button class="icon-btn" type="button" id="cook-close" aria-label="Закрыть режим готовки">${i("close")}</button>
     </div>
   </div>
-  <div><div class="cook-progress" aria-hidden="true"></div><p class="wake-note"></p></div>
+  <div><div class="cook-progress" aria-hidden="true"></div><p class="wake-note"><span class="cook-count" aria-live="polite"></span><span class="wake-text"></span></p></div>
   <div class="cook-stage" aria-live="polite"></div>
   <div class="cook-nav">
     <button class="btn btn-ghost" type="button" id="cook-prev">${i("back")}Назад</button>
@@ -586,7 +586,7 @@ function about() {
       ${ab.body.map((b) => block(b, rel)).join("\n")}
       <div class="actions" style="margin-top:2rem">
         <a class="btn btn-tomato" href="${esc(site.youtube)}" target="_blank" rel="noopener"><span class="play-dot">${i("play")}</span>Наш YouTube</a>
-        <a class="btn" href="mailto:${esc(site.email)}">${i("mail")}Написать студии</a>
+        <a class="btn" href="mailto:${esc(site.email)}">${i("mail")}Написать нам</a>
       </div>
     </div>
     <div>

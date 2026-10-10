@@ -131,7 +131,8 @@
     const search = $("#recipe-search");
     const count = $(".finder-count");
     const empty = $(".book-empty", book);
-    const limit = Number(book.dataset.limit || 0);
+    const phone = matchMedia("(max-width: 620px)");
+    const lim = () => Number((phone.matches && book.dataset.limitPhone) || book.dataset.limit || 0);
     const more = $(".book-more");
     let cat = new URLSearchParams(location.search).get("cat") || "all";
     const norm = (s) => s.toLowerCase().replace(/ё/g, "е");
@@ -142,6 +143,7 @@
       const update = () => {
         dishes.forEach((d) => {
           const match = (cat === "all" || d.dataset.cat === cat) && (!q || norm(d.dataset.search).includes(q));
+          const limit = lim();
           const fits = match && (!limit || cat !== "all" || q || shown < limit);
           d.hidden = !fits;
           d.classList.toggle("feature", fits && shown === 0 && d.dataset.canFeature === "true" && !q);
@@ -167,6 +169,7 @@
       const q = new URLSearchParams(location.search).get("q");
       if (q) search.value = q;
     }
+    phone.addEventListener?.("change", () => apply(false));
     apply(false);
   }
 
@@ -307,6 +310,9 @@
   const pantryBtn = $("#cook-pantry-btn");
   const wakeNote = $(".wake-note", cook);
   let i = store.get(`smachno:${slug}:step`, 0);
+  const count = $(".cook-count", cook);
+  const fade = () => stage.classList.toggle("more", stage.scrollHeight - stage.scrollTop - stage.clientHeight > 8);
+  stage.addEventListener("scroll", fade, { passive: true });
   let wake = null;
   progress.innerHTML = steps.map(() => "<i></i>").join("");
   const finalHTML = $("#cook-final-template").innerHTML;
@@ -329,7 +335,7 @@
     step.className = `cook-step ${last ? "cook-final" : ""} ${!last && s.photo ? "with-photo" : ""} ${reduceMotion ? "" : dir > 0 ? "enter" : "enter-back"}`;
     if (last) step.innerHTML = finalHTML;
     else {
-      step.innerHTML = `<div><span class="count">Шаг ${i + 1} из ${steps.length}</span><div class="text">${s.body}</div></div>`;
+      step.innerHTML = `<div><div class="text">${s.body}</div></div>`;
       if (s.photo) {
         const fig = document.createElement("figure"); fig.className = "cook-photo";
         const img = new Image(); img.src = s.photo.currentSrc || s.photo.src; img.alt = s.photo.alt;
@@ -338,23 +344,27 @@
     }
     stage.replaceChildren(step);
     $$("i", progress).forEach((bar, k) => { bar.className = k < i ? "done" : k === i ? "now" : ""; });
+    count.textContent = last ? "Готово" : `Шаг ${i + 1} из ${steps.length}`;
+    stage.scrollTop = 0;
+    requestAnimationFrame(fade);
     prev.disabled = i === 0;
     next.innerHTML = last ? `Закрыть ${icon("close")}` : i === steps.length - 1 ? `Готово ${icon("check")}` : `Дальше ${icon("arrow")}`;
     next.focus({ preventScroll: true });
   };
   const keepAwake = async () => {
-    try { wake = await navigator.wakeLock?.request("screen"); if (wake) wakeNote.textContent = "Экран не погаснет, пока открыт режим готовки."; }
-    catch { wakeNote.textContent = ""; }
+    try { wake = await navigator.wakeLock?.request("screen"); if (wake) $(".wake-text", wakeNote).textContent = "· Экран не погаснет, пока открыт режим готовки."; }
+    catch { $(".wake-text", wakeNote).textContent = ""; }
   };
   const open = () => {
     syncCookPantry();
     cook.showModal();
+    cook.append(dock);
     document.documentElement.style.overflow = "hidden";
     show(i >= steps.length ? 0 : i, 1);
     keepAwake();
   };
   const close = () => { cook.close(); };
-  cook.addEventListener("close", () => { document.documentElement.style.overflow = ""; wake?.release?.(); wake = null; cookPantry.dataset.open = "false"; pantryBtn.setAttribute("aria-pressed", "false"); });
+  cook.addEventListener("close", () => { document.body.append(dock); document.documentElement.style.overflow = ""; wake?.release?.(); wake = null; cookPantry.dataset.open = "false"; pantryBtn.setAttribute("aria-pressed", "false"); });
   document.addEventListener("visibilitychange", () => { if (!document.hidden && cook.open) keepAwake(); });
   opener.forEach((b) => b.addEventListener("click", open));
   $("#cook-close").addEventListener("click", close);
