@@ -1,0 +1,14 @@
+{
+  "name": "smachno-studio",
+  "private": true,
+  "type": "module",
+  "description": "Сайт кулинарной студии Smachno Studio",
+  "scripts": {
+    "build": "node build.mjs",
+    "preview": "node build.mjs && npx --yes serve@14.2.4 docs",
+    "photo": "node tools/photo.mjs"
+  },
+  "devDependencies": {
+    "sharp": "0.35.4"
+  }
+}
