@@ -4,7 +4,7 @@ name: Публикация сайта
 
 on:
   push:
-    branches: [main]
+    branches: [main, ai-agent-test]
   workflow_dispatch:
 
 permissions:
