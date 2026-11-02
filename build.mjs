@@ -48,11 +48,10 @@ function pic(rel, name, alt, { sizes = "100vw", cls = "", eager = false, dir = "
   const widths = [800, 1600].filter((w) => has(w, "jpg"));
   if (!widths.length) return `<div class="${cls} ph" role="img" aria-label="${esc(alt)}"></div>`;
   const set = (ext) => widths.filter((w) => has(w, ext)).map((w) => `${base}-${w}.${ext} ${w}w`).join(", ");
-  // У блинчиков AVIF на главной отображается пустая область в некоторых браузерах.
-  // Для этого блюда используем надёжный JPEG; остальные изображения остаются AVIF-first.
-  const avif = name === "blinchiki-s-krasnoy-ryboy" ? "" : set("avif");
+  // AVIF в опубликованной версии иногда отображается пустым блоком.
+  // Используем JPEG для всех карточек и страниц рецептов — это надёжный fallback.
   const load = eager ? `fetchpriority="high"` : `loading="lazy"`;
-  return `<picture>${avif ? `<source type="image/avif" srcset="${avif}" sizes="${sizes}">` : ""}<img class="${cls}" src="${base}-${widths[0]}.jpg" srcset="${set("jpg")}" sizes="${sizes}" alt="${esc(alt)}" width="1600" height="1000" ${load} decoding="async"></picture>`;
+  return `<picture><img class="${cls}" src="${base}-${widths[0]}.jpg" srcset="${set("jpg")}" sizes="${sizes}" alt="${esc(alt)}" width="1600" height="1000" ${load} decoding="async"></picture>`;
 }
 
 // Самая большая версия картинки — для превью в соцсетях и разметки для поисковиков
