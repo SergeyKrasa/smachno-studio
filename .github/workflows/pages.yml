@@ -1,11 +1,10 @@
-# Сборка и публикация сайта на GitHub Pages.
-# Запускается сама при каждом изменении в ветке main (и вручную во вкладке Actions).
+# Сборка и публикация основного сайта на GitHub Pages.
+# В тестовой ветке публикация отключена, чтобы не перезаписать основной сайт.
 name: Публикация сайта
 
 on:
   push:
-    branches: [main, ai-agent-test]
-  workflow_dispatch:
+    branches: [main]
 
 permissions:
   contents: read
