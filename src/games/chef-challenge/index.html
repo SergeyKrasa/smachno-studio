@@ -217,7 +217,7 @@
       <h2 id="statsTitle">Статистика игры</h2>
       <div class="stats-grid">
         <div class="stats-cell"><strong id="localStarts">0</strong><span>Запусков на этом устройстве</span></div>
-        <div class="stats-cell"><strong id="localCompletes">0</strong><span>Полных прохождений на этом устройстве</span></div>
+        <div class="stats-cell"><strong id="localCompletes">0</strong><span>Успешных прохождений уровня 1</span></div>
       </div>
       <p class="global-note">Общие показатели всех игроков появятся после подключения серверного счётчика. Локальные числа не выдаются за глобальную статистику.</p>
       <div class="modal-actions"><button class="modal-primary" id="statsClose" type="button">Закрыть</button></div>
@@ -284,7 +284,7 @@
         tile.setAttribute('aria-label',item.name);
         const art=document.createElement('span'); art.className='food-art'; art.style.cssText=atlasStyle(item); art.setAttribute('aria-hidden','true');
         tile.appendChild(art); board.appendChild(tile);
-        tile.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&!state.completed&&!state.selected.includes(item.id)){e.preventDefault();state.pending=item.id;renderSelection();}});
+        tile.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&!state.completed&&!state.selected.includes(item.id)){e.preventDefault();setPending(item.id);renderSelection();}});
         tile.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'&&!state.drag)showTooltip(item,e.clientX,e.clientY)});
         tile.addEventListener('pointerleave',()=>{if(!state.drag)hideTooltip()});
         tile.addEventListener('pointerdown',e=>startPointer(e,item,tile));
@@ -299,8 +299,14 @@
       tooltip.style.left=left+'px'; tooltip.style.top=top+'px';
     }
     function hideTooltip(){tooltip.classList.remove('show')}
+    function setPending(id){
+      if(state.pending&&state.pending!==id){const old=board.querySelector(`[data-id="${state.pending}"]`);if(old)old.classList.remove('pending')}
+      state.pending=id;
+      if(id){const next=board.querySelector(`[data-id="${id}"]`);if(next)next.classList.add('pending')}
+    }
     function startPointer(e,item,tile){
       if(state.completed||state.selected.includes(item.id))return;
+      if(state.pending&&state.pending!==item.id){const old=board.querySelector(`[data-id="${state.pending}"]`);if(old)old.classList.remove('pending');state.pending=null;$('#pendingNote').textContent='';}
       e.preventDefault(); hideTooltip();
       if(e.pointerType==='touch')showTooltip(item,e.clientX,e.clientY);
       state.drag={id:item.id,item,tile,startX:e.clientX,startY:e.clientY,started:false,pointerId:e.pointerId};
@@ -323,8 +329,8 @@
       const d=state.drag; if(!d)return;
       hideTooltip(); const target=document.elementFromPoint(e.clientX,e.clientY);
       if(d.started){if(target&&(target===bowl||bowl.contains(target)))addIngredient(d.id);else d.tile.classList.remove('pending')}
-      else {state.pending=d.id;d.tile.classList.add('pending');$('#pendingNote').textContent='Выбран продукт. Теперь коснитесь салатницы или перетащите продукт в неё.';}
-      d.tile.classList.remove('pending'); state.drag=null; removeGhost();
+      else {setPending(d.id);$('#pendingNote').textContent='Выбран продукт. Теперь коснитесь салатницы или перетащите продукт в неё.';}
+      if(d.started)d.tile.classList.remove('pending'); state.drag=null; removeGhost();
       window.removeEventListener('pointermove',movePointer);window.removeEventListener('pointercancel',cancelPointer);
     }
     function cancelPointer(){if(state.drag)state.drag.tile.classList.remove('pending');state.drag=null;hideTooltip();removeGhost();window.removeEventListener('pointermove',movePointer)}
