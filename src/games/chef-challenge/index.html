@@ -306,7 +306,7 @@
     }
     function startPointer(e,item,tile){
       if(state.completed||state.selected.includes(item.id))return;
-      if(state.pending&&state.pending!==item.id){const old=board.querySelector(`[data-id="${state.pending}"]`);if(old)old.classList.remove('pending');state.pending=null;$('#pendingNote').textContent='';}
+      if(state.pending){const old=board.querySelector(`[data-id="${state.pending}"]`);if(old)old.classList.remove('pending');state.pending=null;$('#pendingNote').textContent='';}
       e.preventDefault(); hideTooltip();
       if(e.pointerType==='touch')showTooltip(item,e.clientX,e.clientY);
       state.drag={id:item.id,item,tile,startX:e.clientX,startY:e.clientY,started:false,pointerId:e.pointerId};
@@ -339,9 +339,11 @@
       const item=ITEMS.find(x=>x.id===id); if(!item)return;
       state.selected.push(id);state.pending=null;$('#pendingNote').textContent='';
       const tile=board.querySelector(`[data-id="${id}"]`);if(tile){tile.classList.add('added');tile.classList.remove('pending')}
-      const chip=document.createElement('span');chip.className='bowl-chip';chip.style.cssText=atlasStyle(item);chip.setAttribute('aria-label',item.name);$('#bowlContents').appendChild(chip);
+      if(state.selected.length<=12){const chip=document.createElement('span');chip.className='bowl-chip';chip.style.cssText=atlasStyle(item);chip.setAttribute('aria-label',item.name);$('#bowlContents').appendChild(chip);}
+      const oldMore=$('#bowlContents').querySelector('.bowl-more');if(oldMore)oldMore.remove();
+      if(state.selected.length>12){const more=document.createElement('span');more.className='bowl-more';more.textContent='+'+(state.selected.length-12);$('#bowlContents').appendChild(more);}
       $('#bowlHint').style.opacity='.12';$('#ingredientCount').textContent=state.selected.length;
-      const mini=document.createElement('span');mini.className='selected-mini';const miniArt=document.createElement('span');miniArt.className='food-art';miniArt.style.cssText=atlasStyle(item);mini.appendChild(miniArt);$('#selectedPreview').appendChild(mini);
+      if(state.selected.length<=8){const mini=document.createElement('span');mini.className='selected-mini';const miniArt=document.createElement('span');miniArt.className='food-art';miniArt.style.cssText=atlasStyle(item);mini.appendChild(miniArt);$('#selectedPreview').appendChild(mini);}
       playSound('drop');save();
     }
     function attempt(){
@@ -359,10 +361,11 @@
     }
     function renderSelection(){
       $('#ingredientCount').textContent=state.selected.length;$('#selectedPreview').innerHTML='';$('#bowlContents').innerHTML='';
-      state.selected.forEach(id=>{const item=ITEMS.find(x=>x.id===id);if(!item)return;
-        const chip=document.createElement('span');chip.className='bowl-chip';chip.style.cssText=atlasStyle(item);$('#bowlContents').appendChild(chip);
-        const mini=document.createElement('span');mini.className='selected-mini';const art=document.createElement('span');art.className='food-art';art.style.cssText=atlasStyle(item);mini.appendChild(art);$('#selectedPreview').appendChild(mini);
+      state.selected.forEach((id,index)=>{const item=ITEMS.find(x=>x.id===id);if(!item)return;
+        if(index<12){const chip=document.createElement('span');chip.className='bowl-chip';chip.style.cssText=atlasStyle(item);$('#bowlContents').appendChild(chip);}
+        if(index<8){const mini=document.createElement('span');mini.className='selected-mini';const art=document.createElement('span');art.className='food-art';art.style.cssText=atlasStyle(item);mini.appendChild(art);$('#selectedPreview').appendChild(mini);}
       });
+      if(state.selected.length>12){const more=document.createElement('span');more.className='bowl-more';more.textContent='+'+(state.selected.length-12);$('#bowlContents').appendChild(more);}
       board.querySelectorAll('.tile').forEach(t=>{t.classList.toggle('added',state.selected.includes(t.dataset.id));t.classList.toggle('pending',state.pending===t.dataset.id)});
       $('#bowlHint').style.opacity=state.selected.length?'.12':'1';$('#pendingNote').textContent=state.pending?'Выбран продукт. Коснитесь салатницы, чтобы добавить его.':'';
     }
