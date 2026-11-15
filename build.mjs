@@ -170,6 +170,7 @@ function header(rel, current) {
       ${link("recepty/", "Рецепты", "recipes")}
       ${link("nauka-vkusa/", "Наука вкуса", "science")}
       ${link("o-studii/", "О студии", "about")}
+      ${link("games/chef-challenge/", "Играть", "game")}
       <a class="btn btn-tomato btn-small" href="${esc(site.youtube)}" target="_blank" rel="noopener">${i("youtube")}YouTube</a>
     </nav>
   </div>
@@ -646,6 +647,7 @@ copyDir(path.join(ROOT, "src/css"), path.join(OUT, "assets/css"));
 copyDir(path.join(ROOT, "src/js"), path.join(OUT, "assets/js"));
 copyDir(path.join(ROOT, "src/fonts"), path.join(OUT, "assets/fonts"));
 copyDir(path.join(ROOT, "src/img"), path.join(OUT, "assets/img"));
+copyDir(path.join(ROOT, "src/games"), path.join(OUT, "games"));
 fs.writeFileSync(path.join(OUT, "assets/img/speckle.svg"), speckle());
 fs.writeFileSync(path.join(OUT, ".nojekyll"), "");
 if (site.domain) fs.writeFileSync(path.join(OUT, "CNAME"), site.domain + "\n");
@@ -658,7 +660,7 @@ articles.forEach(articlePage);
 about();
 notFound();
 
-const urls = ["", "recepty/", ...recipes.map((r) => `recepty/${r.slug}/`), "nauka-vkusa/", ...articles.map((a) => `nauka-vkusa/${a.slug}/`), "o-studii/"];
+const urls = ["", "games/chef-challenge/", "recepty/", ...recipes.map((r) => `recepty/${r.slug}/`), "nauka-vkusa/", ...articles.map((a) => `nauka-vkusa/${a.slug}/`), "o-studii/"];
 write("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `  <url><loc>${site.url.replace(/\/$/, "")}/${u}</loc></url>`).join("\n")}\n</urlset>\n`);
 write("robots.txt", `User-agent: *\nAllow: /\nSitemap: ${site.url.replace(/\/$/, "")}/sitemap.xml\n`);
 
