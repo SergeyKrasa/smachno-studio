@@ -1,0 +1,182 @@
+name: Antigravity agent task
+
+on:
+  issues:
+    types: [opened, labeled]
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: antigravity-issue-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  run-agent:
+    # Only the repository owner can launch the agent, and only with the explicit label.
+    if: >-
+      github.event.issue.user.login == 'SergeyKrasa' &&
+      github.event.sender.login == 'SergeyKrasa' &&
+      contains(github.event.issue.labels.*.name, 'agent-run')
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Launch Google-managed Antigravity agent and report its result
+        uses: actions/github-script@v7
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ANTIGRAVITY_GITHUB_PAT: ${{ secrets.ANTIGRAVITY_GITHUB_PAT }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const issue = context.payload.issue;
+            const apiKey = process.env.GEMINI_API_KEY;
+            const githubPat = process.env.ANTIGRAVITY_GITHUB_PAT;
+
+            const comment = async (body) => {
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: issue.number, body
+              });
+            };
+
+            if (!apiKey || !githubPat) {
+              await comment(
+                "Задача пока не запущена: не настроены секреты `GEMINI_API_KEY` и/или `ANTIGRAVITY_GITHUB_PAT`. " +
+                "См. инструкцию `docs/ANTIGRAVITY_CHATGPT_BRIDGE.md`."
+              );
+              core.setFailed("Missing required repository secrets.");
+              return;
+            }
+
+            const basicAuth = Buffer
+              .from(`x-oauth-basic:${githubPat}`, "utf8")
+              .toString("base64");
+
+            const ownerPrompt = String(issue.body || "").slice(0, 20000);
+            const taskPrompt = [
+              "Ты — облачный разработчик проекта Smachno Studio. Выполни задачу из GitHub Issue.",
+              `Репозиторий: https://github.com/${owner}/${repo}`,
+              "Рабочая папка: /workspace/smachno-studio.",
+              "Перед изменениями прочитай CLAUDE.md, PRODUCT.md и DESIGN.md, если они есть.",
+              "Создай отдельную ветку agent/issue-" + issue.number + " от main, если автор задачи явно не указал другую базовую ветку.",
+              "Не меняй main напрямую и не сливай Pull Request. Создай ветку, внеси изменения, запусти подходящие проверки и открой Pull Request в main.",
+              "Сохраняй дизайн и архитектуру существующего сайта. Не добавляй платные сервисы, секреты или ключи в репозиторий.",
+              "Не публикуй сайт и не меняй настройки GitHub Actions, если это явно не требуется задачей.",
+              "Для push используй GitHub HTTPS remote. Авторизация добавляется сетевым прокси Google; не пытайся читать, печатать, сохранять или встраивать токен.",
+              "В конце сообщи ссылку на Pull Request, список изменённых файлов, результаты тестов и оставшиеся вопросы.",
+              "",
+              "Задача:",
+              `Заголовок: ${issue.title}`,
+              ownerPrompt
+            ].join("\n");
+
+            const payload = {
+              agent: "antigravity-preview-09-2026",
+              input: taskPrompt,
+              background: true,
+              agent_config: {
+                type: "antigravity",
+                model: "gemini-4-argon",
+                max_total_tokens: 50000
+              },
+              environment: {
+                type: "remote",
+                sources: [{
+                  type: "repository",
+                  source: `https://github.com/${owner}/${repo}`,
+                  target: "/workspace/smachno-studio"
+                }],
+                network: {
+                  allowlist: [
+                    {
+                      domain: "github.com",
+                      transform: { Authorization: `Basic ${basicAuth}` }
+                    },
+                    {
+                      domain: "api.github.com",
+                      transform: { Authorization: `Bearer ${githubPat}` }
+                    },
+                    { domain: "*" }
+                  ]
+                }
+              }
+            };
+
+            await comment(
+              "Задача передана облачному Antigravity-агенту Google. Компьютер владельца может быть выключен. " +
+              "После выполнения агент должен открыть Pull Request; автоматического слияния нет."
+            );
+
+            const endpoint = "https://generativelanguage.googleapis.com/v1beta/interactions";
+            const createResponse = await fetch(endpoint, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "x-goog-api-key": apiKey
+              },
+              body: JSON.stringify(payload)
+            });
+
+            if (!createResponse.ok) {
+              const errorText = (await createResponse.text()).slice(0, 2500);
+              await comment("Не удалось запустить Antigravity API. Ответ сервиса: `" +
+                errorText.replace(/`/g, "'") + "`");
+              core.setFailed("Antigravity API start failed: " + createResponse.status);
+              return;
+            }
+
+            let interaction = await createResponse.json();
+            if (!interaction.id) {
+              await comment("Google API не вернул идентификатор задачи. Проверь журнал GitHub Actions.");
+              core.setFailed("Antigravity API response did not include an interaction id.");
+              return;
+            }
+
+            const interactionId = interaction.id;
+            core.notice("Antigravity interaction started: " + interactionId);
+            const deadline = Date.now() + 55 * 60 * 1000;
+
+            while (interaction.status === "in_progress" && Date.now() < deadline) {
+              await new Promise(resolve => setTimeout(resolve, 15000));
+              const pollResponse = await fetch(
+                `https://generativelanguage.googleapis.com/v1beta/interactions/${encodeURIComponent(interactionId)}`,
+                { headers: { "x-goog-api-key": apiKey } }
+              );
+
+              if (!pollResponse.ok) {
+                const errorText = (await pollResponse.text()).slice(0, 1500);
+                await comment("Не удалось получить статус задачи Antigravity: `" +
+                  errorText.replace(/`/g, "'") + "`");
+                core.setFailed("Antigravity status polling failed.");
+                return;
+              }
+              interaction = await pollResponse.json();
+            }
+
+            if (interaction.status === "in_progress") {
+              await comment(
+                "Задача всё ещё выполняется после 55 минут. Идентификатор: `" +
+                interactionId + "`. Проверь Google AI Studio и журнал GitHub Actions."
+              );
+              core.setFailed("Antigravity interaction exceeded the workflow wait window.");
+              return;
+            }
+
+            const resultText = String(interaction.output_text || "Агент завершил выполнение без текстового отчёта.");
+            const usage = interaction.usage?.total_tokens;
+            const report = [
+              "### Результат Antigravity",
+              "",
+              "**Статус:** `" + String(interaction.status || "unknown") + "`",
+              usage != null ? "**Использовано токенов:** " + usage : "",
+              "**ID задачи:** `" + interactionId + "`",
+              "",
+              resultText.slice(0, 6500),
+              resultText.length > 6500 ? "\n\n_Отчёт сокращён; полный результат доступен в журнале запуска._" : ""
+            ].filter(Boolean).join("\n");
+
+            await comment(report);
+            if (interaction.status !== "completed") {
+              core.setFailed("Antigravity finished with status: " + interaction.status);
+            }
